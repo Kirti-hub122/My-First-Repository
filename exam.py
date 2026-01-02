@@ -1,0 +1,1 @@
+print ("Exam Started from Monday")
