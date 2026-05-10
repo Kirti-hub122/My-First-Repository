@@ -1,0 +1,33 @@
+%%writefile SimpleWordCount.java
+
+import java.util.HashMap;
+
+public class SimpleWordCount {
+
+    public static void main(String[] args) {
+
+        String text = "hello world hello hadoop big data hello";
+
+        String[] words = text.split(" ");
+
+        HashMap<String, Integer> count = new HashMap<>();
+
+        for(String word : words) {
+
+            if(count.containsKey(word)) {
+                count.put(word, count.get(word) + 1);
+            }
+            else {
+                count.put(word, 1);
+            }
+        }
+
+        System.out.println("Word Count Output:\n");
+
+        for(String word : count.keySet()) {
+            System.out.println(word + " : " + count.get(word));
+        }
+    }
+}                                                                                                                                                                                                                                                                    
+compile : !javac SimpleWordCount.java                                                                                                                                                                                         
+run : !java SimpleWordCount
