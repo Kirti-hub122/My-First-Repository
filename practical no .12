@@ -1,33 +1,128 @@
-%%writefile SimpleWordCount.java
+# =========================================================
+# DSBDA Practical 12 
+# MapReduce Program for System Log File Processing
+# Single File Jupyter Notebook Code
+# =========================================================
 
-import java.util.HashMap;
+import pandas as pd
 
-public class SimpleWordCount {
+# ---------------------------------------------------------
+# STEP 1 : Create Sample Log File
+# ---------------------------------------------------------
 
-    public static void main(String[] args) {
+log_data = """
+2026-05-11 10:00:01 INFO User login successful
+2026-05-11 10:01:15 ERROR Database connection failed
+2026-05-11 10:02:20 WARNING Disk space low
+2026-05-11 10:03:05 INFO File uploaded
+2026-05-11 10:04:30 ERROR Invalid password
+2026-05-11 10:05:40 INFO User logout
+2026-05-11 10:06:50 WARNING CPU usage high
+2026-05-11 10:07:25 INFO Backup completed
+2026-05-11 10:08:45 ERROR Network timeout
+"""
 
-        String text = "hello world hello hadoop big data hello";
+with open("system_log.txt", "w") as file:
+    file.write(log_data)
 
-        String[] words = text.split(" ");
+print("Sample Log File Created Successfully\n")
 
-        HashMap<String, Integer> count = new HashMap<>();
 
-        for(String word : words) {
+# ---------------------------------------------------------
+# STEP 2 : Read Log File
+# ---------------------------------------------------------
 
-            if(count.containsKey(word)) {
-                count.put(word, count.get(word) + 1);
-            }
-            else {
-                count.put(word, 1);
-            }
-        }
+with open("system_log.txt", "r") as file:
+    logs = file.readlines()
 
-        System.out.println("Word Count Output:\n");
+print("LOG FILE CONTENTS\n")
 
-        for(String word : count.keySet()) {
-            System.out.println(word + " : " + count.get(word));
-        }
-    }
-}                                                                                                                                                                                                                                                                    
-compile : !javac SimpleWordCount.java                                                                                                                                                                                         
-run : !java SimpleWordCount
+for line in logs:
+    print(line.strip())
+
+
+# ---------------------------------------------------------
+# STEP 3 : MAP PHASE
+# ---------------------------------------------------------
+# Extract log levels and create key-value pairs
+# Example:
+# INFO -> 1
+# ERROR -> 1
+# ---------------------------------------------------------
+
+mapped_data = []
+
+for line in logs:
+    
+    words = line.split()
+    
+    if len(words) > 2:
+        log_level = words[2]
+        mapped_data.append((log_level, 1))
+
+print("\nMAPPED OUTPUT\n")
+
+for item in mapped_data:
+    print(item)
+
+
+# ---------------------------------------------------------
+# STEP 4 : SHUFFLE AND SORT PHASE
+# ---------------------------------------------------------
+# Group same keys together
+# ---------------------------------------------------------
+
+shuffle_sort = {}
+
+for key, value in mapped_data:
+    
+    if key not in shuffle_sort:
+        shuffle_sort[key] = []
+    
+    shuffle_sort[key].append(value)
+
+print("\nSHUFFLE AND SORT OUTPUT\n")
+
+for key in shuffle_sort:
+    print(key, "->", shuffle_sort[key])
+
+
+# ---------------------------------------------------------
+# STEP 5 : REDUCE PHASE
+# ---------------------------------------------------------
+# Sum values for each key
+# ---------------------------------------------------------
+
+reduced_output = {}
+
+for key in shuffle_sort:
+    reduced_output[key] = sum(shuffle_sort[key])
+
+print("\nFINAL REDUCED OUTPUT\n")
+
+for key, value in reduced_output.items():
+    print(key, ":", value)
+
+
+# ---------------------------------------------------------
+# STEP 6 : DISPLAY RESULT IN TABLE FORMAT
+# ---------------------------------------------------------
+
+df = pd.DataFrame(
+    list(reduced_output.items()),
+    columns=["Log Level", "Count"]
+)
+
+print("\nRESULT TABLE\n")
+print(df)
+
+
+# ---------------------------------------------------------
+# EXPECTED OUTPUT
+# ---------------------------------------------------------
+#
+# INFO : 4
+# ERROR : 3
+# WARNING : 2
+#
+# ---------------------------------------------------------
