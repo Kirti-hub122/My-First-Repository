@@ -1,0 +1,133 @@
+# =========================================================
+# DSBDA Practical 13
+# Weather Data Analysis using MapReduce Concept
+# =========================================================
+#
+# Read weather data from text file and find:
+# 1. Average Temperature
+# 2. Average Dew Point
+# 3. Average Wind Speed
+#
+# =========================================================
+
+
+# ---------------------------------------------------------
+# IMPORT LIBRARY
+# ---------------------------------------------------------
+
+import pandas as pd
+
+
+# ---------------------------------------------------------
+# CREATE SAMPLE WEATHER DATA FILE
+# ---------------------------------------------------------
+
+weather_data = """
+Day1 30 22 12
+Day2 32 24 14
+Day3 28 21 10
+Day4 35 26 18
+Day5 31 23 15
+"""
+
+with open("sample_weather.txt", "w") as file:
+    file.write(weather_data)
+
+print("SAMPLE WEATHER FILE CREATED\n")
+
+
+# ---------------------------------------------------------
+# READ WEATHER DATA FILE
+# ---------------------------------------------------------
+
+data = []
+
+with open("sample_weather.txt", "r") as file:
+    
+    for line in file:
+        
+        parts = line.split()
+        
+        if len(parts) == 4:
+            
+            day = parts[0]
+            temperature = int(parts[1])
+            dew_point = int(parts[2])
+            wind_speed = int(parts[3])
+            
+            data.append([day, temperature, dew_point, wind_speed])
+
+
+# ---------------------------------------------------------
+# CREATE DATAFRAME
+# ---------------------------------------------------------
+
+df = pd.DataFrame(
+    data,
+    columns=["Day", "Temperature", "Dew_Point", "Wind_Speed"]
+)
+
+print("WEATHER DATASET\n")
+
+print(df)
+
+
+# ---------------------------------------------------------
+# MAP PHASE
+# ---------------------------------------------------------
+# Extract values
+# ---------------------------------------------------------
+
+temp_values = df["Temperature"]
+
+dew_values = df["Dew_Point"]
+
+wind_values = df["Wind_Speed"]
+
+print("\nTEMPERATURE VALUES\n")
+print(list(temp_values))
+
+print("\nDEW POINT VALUES\n")
+print(list(dew_values))
+
+print("\nWIND SPEED VALUES\n")
+print(list(wind_values))
+
+
+# ---------------------------------------------------------
+# REDUCE PHASE
+# Calculate averages
+# ---------------------------------------------------------
+
+avg_temp = temp_values.mean()
+
+avg_dew = dew_values.mean()
+
+avg_wind = wind_values.mean()
+
+
+# ---------------------------------------------------------
+# DISPLAY RESULTS
+# ---------------------------------------------------------
+
+print("\nAVERAGE WEATHER VALUES\n")
+
+print("Average Temperature :", avg_temp)
+
+print("Average Dew Point   :", avg_dew)
+
+print("Average Wind Speed  :", avg_wind)
+
+
+# ---------------------------------------------------------
+# FINAL RESULT TABLE
+# ---------------------------------------------------------
+
+result = pd.DataFrame({
+    "Parameter": ["Temperature", "Dew Point", "Wind Speed"],
+    "Average": [avg_temp, avg_dew, avg_wind]
+})
+
+print("\nFINAL RESULT TABLE\n")
+
+print(result)
