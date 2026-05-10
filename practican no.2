@@ -1,0 +1,188 @@
+# =========================================================
+# DSBDA Practical 2
+# Data Wrangling II
+# =========================================================
+#
+# Create Academic Performance Dataset
+# Perform:
+# 1. Missing Value Handling
+# 2. Inconsistency Detection
+# 3. Outlier Detection
+# 4. Data Transformation
+# 5. Skewness Reduction
+#
+# =========================================================
+
+
+# ---------------------------------------------------------
+# IMPORT LIBRARIES
+# ---------------------------------------------------------
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+# ---------------------------------------------------------
+# CREATE STUDENT DATASET
+# ---------------------------------------------------------
+
+data = {
+    'Name': ['Amit', 'Sneha', 'Rahul', 'Pooja', 'Kiran',
+             'Neha', 'Arjun', 'Priya', 'Rohit', 'Anjali'],
+    
+    'Math': [85, 90, np.nan, 35, 95,
+             200, 76, 88, 45, 79],
+    
+    'Science': [78, 85, 67, np.nan, 92,
+                89, 300, 81, 40, 75],
+    
+    'English': [80, 95, 70, 60, np.nan,
+                85, 77, 90, 50, 73]
+}
+
+df = pd.DataFrame(data)
+
+print("ORIGINAL DATASET\n")
+print(df)
+
+
+# ---------------------------------------------------------
+# CHECK MISSING VALUES
+# ---------------------------------------------------------
+
+print("\nMISSING VALUES IN DATASET\n")
+print(df.isnull())
+
+
+print("\nTOTAL MISSING VALUES\n")
+print(df.isnull().sum())
+
+
+# ---------------------------------------------------------
+# HANDLE MISSING VALUES
+# Replace missing values with column mean
+# ---------------------------------------------------------
+
+df['Math'].fillna(df['Math'].mean(), inplace=True)
+
+df['Science'].fillna(df['Science'].mean(), inplace=True)
+
+df['English'].fillna(df['English'].mean(), inplace=True)
+
+print("\nDATASET AFTER HANDLING MISSING VALUES\n")
+print(df)
+
+
+# ---------------------------------------------------------
+# DETECT INCONSISTENCIES
+# Marks greater than 100 are invalid
+# ---------------------------------------------------------
+
+print("\nINCONSISTENT VALUES\n")
+
+print(df[df['Math'] > 100])
+
+print(df[df['Science'] > 100])
+
+
+# ---------------------------------------------------------
+# FIX INCONSISTENCIES
+# Replace values greater than 100 with column median
+# ---------------------------------------------------------
+
+math_median = df[df['Math'] <= 100]['Math'].median()
+
+science_median = df[df['Science'] <= 100]['Science'].median()
+
+df.loc[df['Math'] > 100, 'Math'] = math_median
+
+df.loc[df['Science'] > 100, 'Science'] = science_median
+
+print("\nDATASET AFTER FIXING INCONSISTENCIES\n")
+print(df)
+
+
+# ---------------------------------------------------------
+# OUTLIER DETECTION USING IQR METHOD
+# ---------------------------------------------------------
+
+Q1 = df['Math'].quantile(0.25)
+
+Q3 = df['Math'].quantile(0.75)
+
+IQR = Q3 - Q1
+
+lower = Q1 - 1.5 * IQR
+
+upper = Q3 + 1.5 * IQR
+
+outliers = df[(df['Math'] < lower) | (df['Math'] > upper)]
+
+print("\nOUTLIERS IN MATH MARKS\n")
+print(outliers)
+
+
+# ---------------------------------------------------------
+# DATA TRANSFORMATION
+# LOG TRANSFORMATION
+# ---------------------------------------------------------
+
+df['Math_Log'] = np.log(df['Math'])
+
+print("\nDATASET AFTER LOG TRANSFORMATION\n")
+print(df)
+
+
+# ---------------------------------------------------------
+# CHECK SKEWNESS
+# ---------------------------------------------------------
+
+print("\nSKEWNESS BEFORE TRANSFORMATION")
+print(df['Math'].skew())
+
+print("\nSKEWNESS AFTER TRANSFORMATION")
+print(df['Math_Log'].skew())
+
+
+# ---------------------------------------------------------
+# HISTOGRAM BEFORE TRANSFORMATION
+# ---------------------------------------------------------
+
+plt.figure(figsize=(6,4))
+
+plt.hist(df['Math'])
+
+plt.title("Math Marks Distribution Before Transformation")
+
+plt.xlabel("Math Marks")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ---------------------------------------------------------
+# HISTOGRAM AFTER TRANSFORMATION
+# ---------------------------------------------------------
+
+plt.figure(figsize=(6,4))
+
+plt.hist(df['Math_Log'])
+
+plt.title("Math Marks Distribution After Transformation")
+
+plt.xlabel("Log Transformed Marks")
+
+plt.ylabel("Frequency")
+
+plt.show()
+
+
+# ---------------------------------------------------------
+# FINAL CLEANED DATASET
+# ---------------------------------------------------------
+
+print("\nFINAL CLEANED DATASET\n")
+
+print(df)
